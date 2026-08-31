@@ -1,3 +1,33 @@
+# Nakara GZDoom Fork
+
+A custom engine fork based on **GZDoom 4.14.2**, developed for use with **Nakara**.
+
+This repository contains the engine-side source changes used by the project. Game-specific artwork, localization data, Windows icons, and other proprietary game resources are not included. Engine-side shaders required by these features are included.
+
+## Features
+
+Major additions and changes include:
+
+- **Focus Highlight** and configurable **VisThruWall** actor rendering
+- Refractive **Cloak** rendering
+- **Depth of Field**, matrix-based **Motion Blur**, Ambient Light, and aspect-correction post-processing
+- Optional projected **sprite shadows** and additional renderer LOD controls
+- **Hardware line-distance culling** (`nk_line_distance_cull`), adapted from the LZDoom approach, with conservative portal/polyobject safeguards
+- Configurable **ParticleTrail / ribbon** effects for sprites and models
+- Batched underwater ambient particles and particle-based **fish school simulation**
+- Navigation-aware **A_SmartChase** and additional custom actor movement helpers
+- Decoded **texture disk caching**, background preparation, texture warmup, and GPU upload pacing
+- **Multiple music slots**, crossfading, intro/loop/outro sequences, and synchronized music stems
+- Shared keyboard/mouse/gamepad **input glyph** support
+- XInput connection tracking, controller rumble, and Steam Deck input detection
+- Windows **IME/raw-input handling improvements**
+- Smooth `DesiredFOV` interpolation and additional presentation controls
+- Nakara-specific standalone-game configuration and INI migration support
+
+For a more detailed overview, see [`docs/NAKARA_ENGINE_CHANGES.txt`](docs/NAKARA_ENGINE_CHANGES.txt).
+
+---
+
 # Welcome to GZDoom!
 
 [![Continuous Integration](https://github.com/ZDoom/gzdoom/actions/workflows/continuous_integration.yml/badge.svg)](https://github.com/ZDoom/gzdoom/actions/workflows/continuous_integration.yml)
