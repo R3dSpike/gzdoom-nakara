@@ -1,0 +1,305 @@
+Nakara Engine Changes
+=====================
+
+Base engine: GZDoom 4.14.2
+
+This document summarizes the major engine-side features and behavioral changes
+present in the Nakara fork. It is intended as a high-level overview rather than
+a complete API or CVar reference.
+
+The public source tree is reconstructed on top of the vanilla GZDoom 4.14.2
+source. Game-specific artwork, localization data, Windows icons and crash-window
+art are not included. Engine shaders required by the features below are included.
+
+
+1. Rendering and Post-processing
+--------------------------------
+
+- Focus Highlight rendering
+  Adds an actor-aware focus/highlight path with per-actor tint and optional
+  outline data. Actors can opt into the focus path with FOCUSHIGHLIGHT and
+  related properties.
+
+- VisThruWall rendering
+  Adds a separate through-wall redraw path for selected actors. It supports
+  category masks, per-actor colors/alpha, outlines, distance fading, fade-in and
+  fade-out timing, occluder control, sprite masking and performance limits.
+
+- Refractive cloak effect
+  Adds the CLOAK actor flag and a post-process refraction/shimmer path for a
+  StarCraft-style cloaking effect. Actor alpha can still be used to control the
+  remaining visibility of the cloaked sprite.
+
+- Depth of Field
+  Adds a configurable depth-of-field post-process with manual and automatic
+  focus modes, trace/depth-based focus sources, focus smoothing, near/far blur
+  controls, center protection and bokeh-related controls.
+
+- Matrix-based motion blur
+  Adds camera/matrix motion blur with history invalidation for teleports,
+  projection changes, render-size changes and other discontinuities.
+
+- Ambient Light post-process
+  Adds a lightweight ambient-light enhancement pass with strength, mix,
+  saturation, darkening and sky-guard controls.
+
+- Aspect correction post-process
+  Adds a configurable aspect-correction pass with smoothing support.
+
+- Projected sprite shadows
+  Adds an optional projected shadow system for selected sprite actors, with
+  OpenGL and Vulkan support and configurable receiver/light filtering.
+
+- Sprite fog opt-out
+  Adds the NOFOGONSPRITE render flag for sprites that should not receive the
+  normal sector/distance fog treatment.
+
+- Edge-only pickup flash
+  Adds an alternative pickup feedback mode that renders the pickup-color flash
+  around the edges of the screen instead of covering the full view.
+
+- Distance and shader LOD controls
+  Adds renderer-side actor distance rejection and wall-shader LOD controls for
+  large scenes containing many decorative objects.
+
+
+2. Particle and Visual Effect Systems
+-------------------------------------
+
+- ParticleTrail actor effect
+  Adds a configurable PARTICLETRAIL effect for sprites and models.
+
+  Supported features include:
+    * automatic, sprite or model source selection
+    * sprite afterimages or center-line ribbon mode
+    * stencil-color or source-color tinting
+    * configurable lifetime, alpha, scale and sampling density
+    * head/tail feathering
+    * optional lateral ribbon wave
+    * optional outer glow layer
+    * model silhouette/hull sampling
+    * line-portal-aware ribbon history
+
+- Batched underwater ambient particles
+  Adds a direct C++ particle spawning bridge for high-frequency underwater
+  ambient effects, avoiding a ZScript VM call for every individual particle.
+
+- Particle-based fish schools
+  Adds a lightweight underwater fish-school simulation using particle data.
+  It supports multiple sprite-frame flocks, cohesion, avoidance, flee behavior,
+  variable movement speed, collision radius, flee hold time and size variation.
+
+
+3. Actor and AI Extensions
+--------------------------
+
+- A_SmartChase
+  Adds a navigation-aware chase path intended to improve movement around
+  obstacles and reduce common chase stalls/oscillation cases.
+
+- A_HypnotizeChase
+  Adds a chase variant that follows an explicitly assigned target without the
+  normal combat target-replacement behavior.
+
+- A_KitsuneSpiritMove
+  Adds a specialized airborne/spirit movement helper used by Nakara gameplay
+  code.
+
+- Static environment optimization
+  Adds NKSTATICENVIRONMENT for harmless static decorations whose normal actor
+  CallTick() work can be skipped.
+
+- Additional actor render/control flags
+  Includes FOCUSHIGHLIGHT, FOCUSTINTOUTLINE, VISTHRUWALL, NOVISTHRU,
+  VISNOTHRUMASK, NKSHADOWCAST, CLOAK and NOFOGONSPRITE, along with their
+  associated actor properties where applicable.
+
+
+4. Texture Caching, Precache and Loading Performance
+----------------------------------------------------
+
+- Decoded texture disk cache
+  Adds an optional on-disk cache for decoded texture data. The cache is
+  renderer-independent and includes source identity/hash validation, versioning,
+  cleanup of invalid/orphaned entries and profiling/debug controls.
+
+- Background texture preparation
+  Adds background cache/preparation hooks and threaded texture-preparation work
+  for render backends that support it.
+
+- Texture warmup queue
+  Adds an actor/material warmup system that can process texture work in small
+  batches instead of forcing all preparation into a single frame.
+
+- CPU warmup worker
+  Adds optional worker-thread preparation for suitable texture warmup jobs,
+  including queue limits and large-texture handling.
+
+- GPU upload pacing
+  Adds configurable per-frame upload limits and time budgets so prepared texture
+  data can be transferred without creating one large frame-time spike.
+
+- OpenGL/Vulkan mip-chain cache support
+  Adds backend-specific mip-chain caching paths and debug controls.
+
+- ZScript warmup interface
+  Exposes PrecacheActorClass and NKWarmup* helpers for explicitly preparing
+  actor resources from script.
+
+
+5. Music and Audio Extensions
+-----------------------------
+
+- Multiple music slots
+  Adds independently controlled music playback slots. Slot 0 shares the legacy
+  main-music playback, while additional slots can run separate streams.
+
+- Music crossfading
+  Adds crossfade support when changing a music slot, including the main slot.
+
+- Per-slot volume, pause and volume fading
+  Music slots can be independently paused and have their volume changed or
+  smoothly faded over time.
+
+- Intro / loop / outro sequences
+  Adds music sequence helpers for tracks that have separate intro, looping body
+  and outro sections.
+
+- Music stem groups
+  Adds synchronized groups of music stems with independently controllable stem
+  volumes and volume fades.
+
+- ZScript music bridge
+  Exposes the slot, crossfade, sequence and stem controls to ZScript through
+  S_PlayMusicSlot, S_PlayMusicSequence, S_BeginMusicStemGroup and related
+  functions.
+
+
+6. Input, Controller and UI Changes
+-----------------------------------
+
+- Input glyph system
+  Adds a shared keyboard, mouse and gamepad glyph mapping for UI text. ZScript
+  can query glyph-aware binding names through NameKeyGlyph, NameKeysGlyph and
+  NameAllKeysGlyph. ACS PRINTBIND also uses the same mapping.
+
+- Input-device-aware binding display
+  Binding hints prefer the currently active/connected input family while still
+  falling back to an available binding when the preferred device has no bind.
+
+- XInput connection state and rumble
+  Adds gamepad connection tracking and script-accessible controller rumble with
+  configurable rumble strength.
+
+- Steam Deck gamepad detection hook
+  Treats the Steam Deck environment as gamepad-connected for UI/input selection.
+
+- Windows IME/raw-input handling fixes
+  Adds Windows IME-aware keyboard handling and debounce logic intended to avoid
+  duplicated Escape/console-toggle actions when using non-English input methods.
+
+- GUI keyboard capture adjustments
+  Raw keyboard registration is adjusted while GUI capture is active to reduce
+  duplicate legacy/raw key events.
+
+- Input binding behavior
+  Keyboard/mouse and gamepad bindings can coexist for the same command while
+  duplicate bindings within the same device family are replaced.
+
+- Resolution menu extensions
+  Adds preset/custom resolution handling without forcing fullscreen state
+  changes when applying a resolution.
+
+- Simplified options redirection
+  Legacy requests for GZDoom's simplified options layout are redirected to the
+  normal options menu in this fork.
+
+
+7. Camera, View and Presentation Changes
+----------------------------------------
+
+- Smooth DesiredFOV interpolation
+  Adds configurable interpolation between the current FOV and DesiredFOV,
+  including snap and large-difference tuning controls.
+
+- Configurable movement bob presentation
+  Adds an additional movement-bob control mode used by the game presentation.
+
+- Hardware backend selection
+  The exposed desktop renderer choices are limited to OpenGL and Vulkan. Old or
+  invalid OpenGL ES backend selections are migrated back to OpenGL.
+
+
+8. Configuration and Standalone-game Integration
+-------------------------------------------------
+
+- Nakara-specific engine identity
+  The fork uses Nakara-specific game/signature/save-extension identifiers.
+
+- Portable INI migration on Windows
+  Adds migration from a legacy gzdoom-<user>.ini portable configuration to the
+  Nakara-specific configuration name. The old file is kept as a single readable
+  *-old.ini backup rather than accumulating numbered backup files.
+
+- Precache migration behavior
+  During legacy configuration migration, the fork restores the expected
+  precache setting once so an old GZDoom configuration cannot silently disable
+  the Nakara precache path.
+
+
+9. Script-facing Helpers
+------------------------
+
+Major script-visible additions include:
+
+  A_SmartChase
+  A_HypnotizeChase
+  A_KitsuneSpiritMove
+  AActor.Rumble
+  AActor.PrecacheActorClass
+
+  FKeyBindings.NameKeyGlyph
+  FKeyBindings.NameKeysGlyph
+  FKeyBindings.NameAllKeysGlyph
+
+  S_PlayMusicSlot
+  S_PlayMusicSlotCrossfade
+  S_ChangeMusicCrossfade
+  S_StopMusicSlot
+  S_StopAllMusicSlots
+  S_SetMusicSlotVolume
+  S_SetMusicSlotVolumeFade
+  S_IsMusicSlotPlaying
+  S_PauseMusicSlot
+
+  S_PlayMusicSequence
+  S_EndMusicSequence
+  S_EndMusicSequenceImmediate
+  S_IsMusicSequencePlaying
+
+  S_BeginMusicStemGroup
+  S_AddMusicStem
+  S_StartMusicStemGroup
+  S_SetMusicStemVolume
+  S_SetMusicStemVolumeFade
+  S_IsMusicStemGroupPlaying
+
+  NKWarmupStart
+  NKWarmupStop
+  NKWarmupActor
+  NKWarmupBurst
+  NKWarmupClear
+  NKWarmupFlushNow
+  NKWarmupIsDone
+  NKWarmupJobsLeft
+  NKWarmupLoadingScreen
+
+
+10. Public Source Resource Policy
+---------------------------------
+
+The public source package intentionally keeps vanilla GZDoom artwork and
+localization resources where the Nakara development tree contained private game
+assets. The Nakara post-process shader source files are retained because they are
+required parts of the engine implementations described above.
+

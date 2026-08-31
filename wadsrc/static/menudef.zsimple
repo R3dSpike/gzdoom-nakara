@@ -1,0 +1,112 @@
+// this file has the simplified menu here.
+// this file is *only* for options that are relevant to a novice user of GZDoom
+// this file needs to be regularly pruned, with options coalesced as much as possible. any and all verbosity should go to the "full" menus.
+
+
+OptionString "LanguageOptions"
+{
+	"eng", "English"
+	"jp", "日本語 (Japanese)"
+	"zh", "简体中文 (Simplified Chinese)"
+}
+
+OptionMenu "OptionsMenuSimple" protected
+{
+	Title "$OPTMNU_TITLE"
+	Class "NakaraDropDownMenu"
+	Submenu "$CNTRLMNU_CONTROLS",			"CustomizeControls"
+	Submenu "$OPTMNU_MOUSE",			"MouseOptions"
+	//Submenu "$OPTMNU_JOYSTICK",			"JoystickOptions"
+	StaticText " "
+	Submenu "$OPTMNU_SOUND",			"SoundOptions"
+	Submenu "$OPTMNU_VIDEO",			"VideoModeMenu"
+	StaticText " "
+	//SafeCommand	"$OPTMNU_DEFAULTS",		"reset2defaults"
+	//SafeCommand	"$OPTMNU_RESETTOSAVED",	"reset2saved"
+	Option "$OPTMNU_SIMPBUFF",			"SimpleBuffmenu", "OnOff"
+	NakaraDropDown "$OPTMNU_SHAKE",			"cl_movebob_enabled", "CameraShakeMode"
+	//Option "$OPTMNU_NOR18",			"Censor", "OnOff"
+	NakaraLanguageDropDown  "$OPTMNU_LANGUAGE",					"language", "LanguageOptions"
+	SafeCommand	"$OPTMNU_WRITEINI",		"writeini"
+	 
+	Command "$OPTMNU_CONSOLE",			"menuconsole"
+
+	StaticText " "
+}
+
+OptionMenu SoundOptionsSimple protected
+{
+	Title "$SNDMNU_TITLE"
+		Class "NakaraDropDownMenu"
+	Slider "$MODMNU_MASTERVOLUME",		"snd_mastervolume", 0, 1, 0.05, 2
+	StaticText " "
+	Slider "$SNDMNU_SFXVOLUME",			"snd_sfxvolume", 0, 1, 0.05, 2
+	Slider "$SNDMNU_MUSICVOLUME",		"snd_musicvolume", 0, 1, 0.05, 2
+	StaticText " "
+	Slider "$SNDMNU_MENUVOLUME",		"snd_menuvolume", 0, 1, 0.05, 2
+	StaticText " "
+	NakaraDropDown "$OPENALMNU_PLAYBACKDEVICE",		"snd_aldevice",		"ALDevices"
+	Command "$SNDMNU_RESTART",			"snd_reset"
+	
+}
+
+OptionMenu VideoOptionsSimple protected
+{
+	Title "$VIDMNU_TITLE"
+	Class "VideoModeMenu"
+	StaticText " "
+	NakaraDropDown "$VIDMNU_PREFERBACKEND",		"vid_preferbackend", "PreferBackend"
+	Option "$VIDMNU_FULLSCREEN",		"vid_fullscreen", "YesNo"
+	NakaraResolution "$NKVIDMNU_RESOLUTION", "NakaraResolutionPresets"
+	
+	NakaraDropDown "$GLPREFMNU_SSAO",		 			"gl_ssao",						"SSAOModes"
+	Option "$GLPREFMNU_DOF",		 			"nk_dof",						"OnOff"
+	Option "$GLPREFMNU_AMBIENTLIGHT",		 			"nk_ambient_light",						"OnOff"
+	Option "$GLPREFMNU_MOTIONBLUR",		 			"nk_motion_blur",						"OnOff"
+	StaticText " "
+	Option "$DSPLYMNU_VSYNC",					"vid_vsync", "OnOff"
+	NakaraDropDown "$VIDMNU_MAXFPS","vid_maxfps","MaxFps"
+}
+
+OptionMenu ScalingOptionsSimple protected
+{
+	Title "$SCALEMNU_TITLE"
+	StaticText "$OPTMNU_HUD"
+	ScaleSlider "$HUDMNU_UISCALE",				"uiscale", 0.0, 8.0, 1.0, "$SCALEMNU_ADAPT"
+	Option "$SCALEMNU_HUDASPECT", 				"hud_aspectscale", "OnOff"
+	Slider "$DSPLYMNU_SCREENSIZE",				"screenblocks", 				3.0, 12.0, 1.0, 0
+	StaticText " "
+	StaticText "$VIDMNU_TITLE"
+	Option "$VIDMNU_SCALEMODE",			"vid_scalemode", "ScaleModes"
+	Slider "$VIDMNU_SCALEFACTOR",		"vid_scalefactor", 0.25, 2.0, 0.25, 2
+}
+
+OptionMenu MiscOptionsSimple protected
+{
+	Title "$MISCMNU_TITLE"
+	Option "$MISCMNU_QUERYIWAD",				"queryiwad", "OnOff"
+	Option "$MISCMNU_NOCHEATS",					"nocheats", "OnOff"
+	Option "$MISCMNU_ALLCHEATS",				"allcheats", "OnOff"
+	Option "$MISCMNU_ENABLEAUTOSAVES",			"disableautosave", "Autosave"
+	Option "$MISCMNU_DEHLOAD",					"dehload", "dehopt"
+	Option "$MISCMNU_ENABLESCRIPTSCREENSHOTS",	"enablescriptscreenshot", "OnOff"
+	Option "$OPTMNU_LANGUAGE",					"language", "LanguageOptions"
+	Option "$MSGMNU_LONGSAVEMESSAGES",			"longsavemessages",	"OnOff"
+}
+
+OptionMenu "MouseOptionsSimple" protected
+{
+	Title "$MOUSEMNU_TITLE"
+	Option "$MOUSEMNU_ENABLEMOUSE",		"use_mouse", "YesNo"
+	Option "$MOUSEMNU_MOUSEINMENU",		"m_use_mouse", "MenuMouse", "use_mouse"
+	IfOption(Windows)
+	{
+		Option "$MOUSEMNU_SWAPBUTTONS", "m_swapbuttons", "YesNo"
+	}
+	Option "$MOUSEMNU_CURSOR",			"vid_cursor", "Cursors"
+	StaticText 	""
+	Slider "$MOUSEMNU_SENSITIVITY_X",	"m_sensitivity_x", 0.1, 8, 0.05
+	Slider "$MOUSEMNU_SENSITIVITY_Y",	"m_sensitivity_y", 0.1, 8, 0.05
+	StaticText 	""
+	Option "$MOUSEMNU_INVERTMOUSE",		"invertmouse", "OnOff"
+}
